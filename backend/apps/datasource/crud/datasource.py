@@ -191,12 +191,14 @@ def sync_single_fields(session: SessionDep, trans: Trans, ds_id: int, id: int):
     ds = session.query(CoreDatasource).filter(CoreDatasource.id == table.ds_id).first()
 
     tables = getTablesByDs(session, ds)
-    t_name = []
-    for _t in tables:
-        t_name.append(_t.tableName)
-
-    if not table.table_name in t_name:
+    table_schema = next((item for item in tables if item.tableName == table.table_name), None)
+    if table_schema is None:
         raise HTTPException(status_code=500, detail=trans('i18n_table_not_exist'))
+
+    # The display name follows the source comment and is refreshed with the schema.
+    table.table_comment = table_schema.tableComment
+    table.tableNameCN = table_schema.tableComment
+    session.add(table)
 
     # sync field
     fields = getFieldsByDs(session, ds, table.table_name)
@@ -219,12 +221,13 @@ def sync_table(session: SessionDep, ds: CoreDatasource, tables: List[CoreTable])
             id_list.append(record.id)
 
             record.table_comment = item.table_comment
+            record.tableNameCN = item.table_comment
             session.add(record)
             session.flush()
         else:
             # save new table
             table = CoreTable(ds_id=ds.id, checked=True, table_name=item.table_name, table_comment=item.table_comment,
-                              custom_comment=item.table_comment)
+                              tableNameCN=item.table_comment, custom_comment=item.table_comment)
             session.add(table)
             session.flush()
             session.refresh(table)

@@ -136,9 +136,26 @@
         >
           <template #default="{ index, style }">
             <div class="list-item_primary" :style="style">
-              <el-checkbox :label="tableList[index].tableName">{{
-                tableList[index].tableName
-              }}</el-checkbox>
+              <el-checkbox
+                class="datasource-table-selection-checkbox"
+                :label="tableList[index].tableName"
+              >
+                <span class="datasource-table-selection">
+                  <span
+                    class="datasource-table-selection__name"
+                    :title="tableList[index].tableName"
+                  >
+                    {{ tableList[index].tableName }}
+                  </span>
+                  <span
+                    v-if="tableDisplayName(tableList[index])"
+                    class="datasource-table-selection__comment"
+                    :title="tableDisplayName(tableList[index])"
+                  >
+                    {{ tableDisplayName(tableList[index]) }}
+                  </span>
+                </span>
+              </el-checkbox>
             </div>
           </template>
         </FixedSizeList>
@@ -187,6 +204,7 @@ const isCreate = ref(true)
 const isEditTable = ref(false)
 const checkList = ref<any>([])
 const tableList = ref<any>([])
+const tableDisplayName = (table: any) => table.tableNameCN || table.tableComment || ''
 const excelUploadSuccess = ref(false)
 const tableListLoading = ref(false)
 const token = wsCache.get('user.token')
@@ -476,6 +494,7 @@ defineExpose({ open })
   .container {
     max-height: 600px;
     overflow-y: auto;
+
     .ed-vl__window.ed-select-dropdown__list::-webkit-scrollbar {
       width: 0;
       height: 0;

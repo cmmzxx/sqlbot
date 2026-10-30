@@ -484,6 +484,7 @@ onMounted(() => {
 })
 
 const keywords = ref('')
+const tableDisplayName = (table: any) => table.tableNameCN || table.tableComment || ''
 const tableListWithSearch = computed(() => {
   if (!keywords.value) return tableList.value
   return tableList.value.filter((ele: any) =>
@@ -871,12 +872,29 @@ defineExpose({
             >
               <template #default="{ index, style }">
                 <div class="list-item_primary" :style="style">
-                  <el-checkbox :label="tableListWithSearch[index].tableName">
+                  <el-checkbox
+                    class="datasource-table-selection-checkbox"
+                    :label="tableListWithSearch[index].tableName"
+                  >
                     <el-icon size="16" style="margin-right: 8px">
                       <icon_form_outlined></icon_form_outlined>
                     </el-icon>
-                    {{ tableListWithSearch[index].tableName }}</el-checkbox
-                  >
+                    <span class="datasource-table-selection">
+                      <span
+                        class="datasource-table-selection__name"
+                        :title="tableListWithSearch[index].tableName"
+                      >
+                        {{ tableListWithSearch[index].tableName }}
+                      </span>
+                      <span
+                        v-if="tableDisplayName(tableListWithSearch[index])"
+                        class="datasource-table-selection__comment"
+                        :title="tableDisplayName(tableListWithSearch[index])"
+                      >
+                        {{ tableDisplayName(tableListWithSearch[index]) }}
+                      </span>
+                    </span>
+                  </el-checkbox>
                 </div>
               </template>
             </FixedSizeList>
@@ -1047,11 +1065,6 @@ defineExpose({
         display: flex;
         align-items: center;
         border-bottom: 1px solid #dee0e3;
-      }
-
-      :deep(.ed-checkbox__label) {
-        display: inline-flex;
-        align-items: center;
       }
 
       :deep(.ed-vl__window) {

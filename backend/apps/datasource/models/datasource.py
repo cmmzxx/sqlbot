@@ -32,6 +32,10 @@ class CoreTable(SQLModel, table=True):
     checked: bool = Field(default=True)
     table_name: str = Field(sa_column=Column(Text))
     table_comment: str = Field(sa_column=Column(Text))
+    tableNameCN: Optional[str] = Field(
+        default=None,
+        sa_column=Column("table_name_cn", Text, nullable=True, comment="表中文名称"),
+    )
     custom_comment: str = Field(sa_column=Column(Text))
     embedding: str = Field(sa_column=Column(Text, nullable=True))
 
@@ -150,14 +154,17 @@ class TableSchema:
     def __init__(self, attr1, attr2=None):
         self.tableName = attr1
         self.tableComment = attr2 if attr2 is None or isinstance(attr2, str) else attr2.decode("utf-8")
+        self.tableNameCN = self.tableComment
 
     tableName: str
     tableComment: str
+    tableNameCN: str | None
 
 
 class TableSchemaResponse(BaseModel):
     tableName: str = ''
     tableComment: str | None = ''
+    tableNameCN: str | None = ''
 
 
 class ColumnSchema:
